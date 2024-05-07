@@ -1,7 +1,13 @@
 import Camera from "@/components/Camera";
 import { initialState, reducer } from "@/reducers/requestReducer";
 import customFetch from "@/utils/axios";
-import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { Link } from "react-router-dom";
 
@@ -10,34 +16,33 @@ import { data, THRESHOLD } from "@/data/dirtDummy";
 const DirtDetection = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const webcamRef = useRef(null);
+
   const handleTakeScreenshot = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
     return imageSrc;
   }, [webcamRef]);
 
-  useEffect(() => {
-    const intervalId = setInterval(
-      async () => {
-        try {
-          dispatch({ type: "SET_LOADING", payload: true });
-          const imageUrl = handleTakeScreenshot();
-          const { data } = await customFetch.post("/api/detect", {
-            image: imageUrl,
-          });
-          dispatch({ type: "SET_RESPONSE", payload: data });
-        } catch (e) {
-          console.error(e);
-          dispatch({
-            type: "SET_ERROR",
-            payload: e?.message || "Error while sending request !",
-          });
-        }
-      },
-      1 * 60 * 60 * 1000
-    ); // 1 hour
-
-    return () => clearInterval(intervalId);
+  const sendImage = useCallback(async () => {
+    try {
+      dispatch({ type: "SET_LOADING", payload: true });
+      const imageUrl = handleTakeScreenshot();
+      const reqData = { image: imageUrl, date: new Date() };
+      console.log("sending request = ", reqData);
+      const { data } = await customFetch.post("/api/dirt", reqData);
+      dispatch({ type: "SET_RESPONSE", payload: data });
+    } catch (e) {
+      console.error(e);
+      dispatch({
+        type: "SET_ERROR",
+        payload: e?.message || "Error while sending request !",
+      });
+    }
   }, [handleTakeScreenshot]);
+
+  useEffect(() => {
+    const intervalId = setInterval(sendImage, 1 * 60 * 60 * 1000); // 1 hour
+    return () => clearInterval(intervalId);
+  }, [sendImage]);
 
   return (
     <Box
@@ -46,8 +51,8 @@ const DirtDetection = () => {
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
-        minHeight: "100vh",
-        position: "relative",
+        pt: "4em",
+        px: "4em",
       }}
     >
       <Box
@@ -70,7 +75,7 @@ const DirtDetection = () => {
           zIndex: "-1",
         }}
       />
-      <Box sx={{ display: "flex", width: "100%", px: 4 }}>
+      <Box sx={{ display: "flex", width: "100%", alignItems: "center" }}>
         <Paper
           sx={{
             width: "50%",
@@ -118,6 +123,7 @@ const DirtDetection = () => {
               color: "#6c5db7",
               marginLeft: "auto",
               padding: "0.5em",
+              textDecoration: "none",
             }}
           >
             Show all
@@ -133,6 +139,9 @@ const DirtDetection = () => {
           }}
         >
           <Camera ref={webcamRef} />
+          <Button size="small" onClick={sendImage}>
+            Test
+          </Button>
           {state.loading && (
             <Box
               sx={{

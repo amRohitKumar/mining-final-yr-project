@@ -11,3 +11,8 @@ export const data = [
   { id: 8, date: "2021-10-01 5:30", dirt: 0.8 },
   { id: 9, date: "2021-10-01 5:30", dirt: 0.8 },
 ];
+
+export const recordData = [
+  { id: 1, date: "2021-10-01 5:30", dirt: 0.1, test: "Dirt detection" },
+  { id: 1, date: "2021-10-01 5:30", dirt: 0.1, test: "Helt detection" },
+]

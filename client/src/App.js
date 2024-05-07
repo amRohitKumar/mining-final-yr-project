@@ -7,12 +7,13 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import "./App.css";
 
+import Navbar from "@/components/Navbar";
 import { DirtDetection, History, WearTearDetection } from "./pages";
 
 function App() {
   return (
-    <Box>
-      
+    <Box sx={{ position: 'relative'}}>
+      <Navbar />
       <Routes>
         <Route exact path="/" element={<DirtDetection />} />
         <Route exact path="/weartear" element={<WearTearDetection />} />
