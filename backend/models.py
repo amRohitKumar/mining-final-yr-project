@@ -104,6 +104,7 @@ class Tear(DBModel):
             CREATE TABLE IF NOT EXISTS tear_calls (
                 id INTEGER PRIMARY KEY,
                 point REAL,
+                wear_type TEXT,
                 severity TEXT CHECK (severity IN ('high', 'medium', 'low')),
                 call_id INTEGER,
                 call_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -116,14 +117,14 @@ class Tear(DBModel):
     def findall(self):
         rows = self.cursor.execute(
             """
-                SELECT point, severity, call_time
+                SELECT point, severity, tear_calls.call_time, wear_type
                 FROM tear_calls JOIN calls 
                 ON tear_calls.call_id=calls.id
             """
         )
         self.conn.commit()
         return [
-            {"point": row[0], "severity": row[1], "call_time": row[2]} for row in rows
+            {"point": row[0], "severity": row[1], "call_time": row[2], "wear_type": row[3]} for row in rows
         ]
 
     def save(self, data_list):
@@ -133,10 +134,10 @@ class Tear(DBModel):
                 self.cursor.execute(
                     """
                 INSERT INTO tear_calls 
-                (point, severity, call_id) 
-                VALUES (?, ?, ?)
+                (point, severity, call_id, wear_type) 
+                VALUES (?, ?, ?, ?)
                 """,
-                    (data["point"], data["severity"], data["call_id"]),
+                    (data["point"], data["severity"], data["call_id"], data["wear_type"]),
                 )
                 self.conn.commit()
                 datano += 1

@@ -143,6 +143,9 @@ const WearTearDetection = () => {
               <Typography variant="body1" align="center">
                 {item.severity}
               </Typography>
+              <Typography variant="body1" align="center" sx={{textTransform: 'capitalize'}}>
+                {item.wear_type}
+              </Typography>
             </Box>
           ))}
           <Link

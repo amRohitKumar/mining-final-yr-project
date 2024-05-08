@@ -62,10 +62,11 @@ export const RecordTear = (props) => {
         title="Severity"
         value={props?.severity}
         style={{ textTransform: "capitalize" }}
-      />
+        />
       <ViewField
         title="Wear type"
         value={props?.wear_type}
+        style={{ textTransform: "capitalize" }}
       />
     </Paper>
   );

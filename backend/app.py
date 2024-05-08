@@ -51,6 +51,7 @@ def tear_detection():
                 "point": tear["point"],
                 "severity": tear["severity"],
                 "call_id": call_ids["call_id"][i],
+                "wear_type": tear["wear_type"],
             }
             for i, tear in enumerate(tears)
         ]
