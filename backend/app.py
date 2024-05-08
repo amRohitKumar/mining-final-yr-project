@@ -1,5 +1,6 @@
 import base64
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dirt_detector import detect_dirt
 from tear_detector import tear_detector
 from PIL import Image
@@ -7,6 +8,7 @@ from io import BytesIO
 from models import Call, Dirt, Tear
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/api/detect-dirt", methods=["POST"])
@@ -14,7 +16,7 @@ def dirt_detection():
     calls = Call()
     dirt_calls = Dirt()
     req = request.json
-    imgb64 = req.get("image")
+    imgb64 = req.get("image")[23:]
     image_bytes = base64.b64decode(imgb64)
     img = Image.open(BytesIO(image_bytes))
     dirt_prob = detect_dirt(img)
@@ -27,7 +29,7 @@ def dirt_detection():
             "call_id": call_id["call_id"][0],
         }
     )
-    return jsonify({"dirty": dirty, "probability": dirt_prob})
+    return jsonify({"id": call_id["call_id"][0], "dirty": dirty, "probability": dirt_prob, "call_time": req.get("timestamp")})
 
 
 @app.route("/api/detect-tear", methods=["POST"])

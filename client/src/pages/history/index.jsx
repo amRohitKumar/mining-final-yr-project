@@ -1,9 +1,71 @@
-import { Box, Typography } from "@mui/material";
-import BGImg from "@/assets/conveyor_belt.jpeg";
-import Record from "@/components/Record";
-import { recordData } from "@/data/dirtDummy";
+import {RecordDirt, RecordTear} from "@/components/Record";
+import { initialState, reducer } from "@/reducers/requestReducer";
+import customFetch from "@/utils/axios";
+import { Box, Tab, Tabs, Typography } from "@mui/material";
+import { useCallback, useEffect, useReducer, useState } from "react";
+
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      style={{
+        width: "100%",
+      }}
+      {...other}
+    >
+      {value === index && (
+        <Box
+          sx={{
+            p: 3,
+            width: '100%',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
 
 const History = () => {
+  const [value, setValue] = useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+  const [state, dispatch] = useReducer(reducer, {...initialState, response: {}});
+  const fetchHistory = useCallback(async () => {
+    try {
+      dispatch({ type: "SET_LOADING", payload: true });
+      const { data } = await customFetch.get("/api/history");
+      console.log(data);
+      dispatch({ type: "SET_RESPONSE", payload: data });
+    } catch (e) {
+      console.error(e);
+      dispatch({
+        type: "SET_ERROR",
+        payload: e?.message || "Error while fetching history !",
+      });
+    }
+  }, []);
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
   return (
     <Box
       sx={{
@@ -37,9 +99,28 @@ const History = () => {
           zIndex: "-1",
         }}
       />
-      {recordData.map((record) => (
-        <Record key={record.id} {...record} />
-      ))}
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          aria-label="history tabs"
+          indicatorColor="secondary"
+          textColor="secondary"
+        >
+          <Tab label="Dirt" {...a11yProps(0)} sx={{ width: "400px" }} />
+          <Tab label="Tear" {...a11yProps(1)} sx={{ width: "400px" }} />
+        </Tabs>
+      </Box>
+      <CustomTabPanel value={value} index={0}>
+        {state.response?.dirt?.map((el) => (
+          <RecordDirt {...el} />
+        ))}
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={1}>
+        {state.response?.tear?.map((el) => (
+          <RecordTear key={el.id} {...el} />
+        ))}
+      </CustomTabPanel>
     </Box>
   );
 };

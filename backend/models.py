@@ -63,7 +63,7 @@ class Dirt(DBModel):
     def findall(self):
         rows = self.cursor.execute(
             """
-            SELECT call_time, call_prob, call_verdict 
+            SELECT call_time, call_prob, call_verdict, calls.id
             FROM dirt_calls JOIN calls 
             ON dirt_calls.call_id=calls.id
             """
@@ -71,6 +71,7 @@ class Dirt(DBModel):
         self.conn.commit()
         return [
             {
+                "id": row[3],
                 "call_prob": row[1],
                 "call_verdict": "dirty" if row[2] else "clean",
                 "call_timestamp": row[0],
@@ -105,6 +106,7 @@ class Tear(DBModel):
                 point REAL,
                 severity TEXT CHECK (severity IN ('high', 'medium', 'low')),
                 call_id INTEGER,
+                call_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (call_id) REFERENCES calls(id)
             )
             """
@@ -121,7 +123,7 @@ class Tear(DBModel):
         )
         self.conn.commit()
         return [
-            {"point": row[0], "severity": row[1], "timestamp": row[2]} for row in rows
+            {"point": row[0], "severity": row[1], "call_time": row[2]} for row in rows
         ]
 
     def save(self, data_list):

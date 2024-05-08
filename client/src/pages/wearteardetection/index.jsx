@@ -8,10 +8,9 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import moment from "moment";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { Link } from "react-router-dom";
-
-import { data, THRESHOLD } from "@/data/dirtDummy";
 
 const WearTearDetection = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -27,9 +26,15 @@ const WearTearDetection = () => {
       dispatch({ type: "SET_LOADING", payload: true });
       const imageUrl = handleTakeScreenshot();
       const reqData = { image: imageUrl, date: new Date() };
-      console.log("sending request = ", reqData);
-      const { data } = await customFetch.post("/api/health", reqData);
-      dispatch({ type: "SET_RESPONSE", payload: data });
+      // console.log("sending request = ", reqData);
+      const { data } = await customFetch.post("/api/detect-tear", reqData);
+      console.log(data);
+      data.forEach((el) =>
+        dispatch({
+          type: "SET_RESPONSE",
+          payload: { ...el, timestamp: new Date() },
+        })
+      );
     } catch (e) {
       console.error(e);
       dispatch({
@@ -81,40 +86,58 @@ const WearTearDetection = () => {
             width: "50%",
             display: "flex",
             flexDirection: "column",
-            height: "max-content",
             borderRadius: "10px",
             overflow: "hidden",
+            height: "400px",
+            overflowY: "scroll",
           }}
           elevation={3}
         >
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: "grid",
+              gridAutoFlow: "column",
+              gridAutoColumns: "1fr",
               borderBottom: "1px solid #ccc",
               padding: "1em",
               backgroundColor: "#000",
               color: "#fff",
             }}
           >
-            <Typography variant="body1">DATE</Typography>
-            <Typography variant="body1">DIRT LEVEL</Typography>
+            <Typography variant="body1">Date</Typography>
+            <Typography variant="body1" align="center">
+              Point
+            </Typography>
+            <Typography variant="body1" align="center">
+              Severity
+            </Typography>
           </Box>
-          {data.slice(0, 5).map((item) => (
+          {state.records.map((item) => (
             <Box
-              key={item.id}
+              key={item.call_id}
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                display: "grid",
+                gridAutoFlow: "column",
+                gridAutoColumns: "1fr",
                 borderBottom: "1px solid #ccc",
-                padding: "1em",
-                backgroundColor: item.dirt > THRESHOLD ? "#f8d7da" : "#d4edda",
+                py: "1em",
+                backgroundColor:
+                  item.severity === "low"
+                    ? "#d4edda"
+                    : item.severity === "medium"
+                    ? "#ecf4c6"
+                    : "#f8d7da",
               }}
             >
-              <Typography variant="body1">{item.date}</Typography>
-              <Typography variant="body1">{item.dirt}</Typography>
+              <Typography variant="body1" align="center">
+                {moment(item?.timestamp).format("MMMM Do YYYY, h:mm:ss a")}
+              </Typography>
+              <Typography variant="body1" align="center">
+                {item.point}
+              </Typography>
+              <Typography variant="body1" align="center">
+                {item.severity}
+              </Typography>
             </Box>
           ))}
           <Link
@@ -124,6 +147,7 @@ const WearTearDetection = () => {
               marginLeft: "auto",
               padding: "0.5em",
               textDecoration: "none",
+              marginTop: "auto",
             }}
           >
             Show all

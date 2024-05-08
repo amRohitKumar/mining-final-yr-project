@@ -10,8 +10,7 @@ import {
 } from "@mui/material";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { Link } from "react-router-dom";
-
-import { data, THRESHOLD } from "@/data/dirtDummy";
+import moment from "moment";
 
 const DirtDetection = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -26,9 +25,10 @@ const DirtDetection = () => {
     try {
       dispatch({ type: "SET_LOADING", payload: true });
       const imageUrl = handleTakeScreenshot();
-      const reqData = { image: imageUrl, date: new Date() };
-      console.log("sending request = ", reqData);
-      const { data } = await customFetch.post("/api/dirt", reqData);
+      const reqData = { image: imageUrl, timestamp: new Date() };
+      // console.log("sending request = ", reqData);
+      const { data } = await customFetch.post("/api/detect-dirt", reqData);
+      console.log("response data = ", data);
       dispatch({ type: "SET_RESPONSE", payload: data });
     } catch (e) {
       console.error(e);
@@ -81,40 +81,55 @@ const DirtDetection = () => {
             width: "50%",
             display: "flex",
             flexDirection: "column",
-            height: "max-content",
             borderRadius: "10px",
             overflow: "hidden",
+            height: "400px",
+            overflowY: "scroll",
           }}
           elevation={3}
         >
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: "grid",
+              gridAutoFlow: "column",
+              gridAutoColumns: "1fr",
               borderBottom: "1px solid #ccc",
               padding: "1em",
               backgroundColor: "#000",
               color: "#fff",
             }}
           >
-            <Typography variant="body1">DATE</Typography>
-            <Typography variant="body1">DIRT LEVEL</Typography>
+            <Typography variant="body1">
+              Date
+            </Typography>
+            <Typography variant="body1" align="center">
+              Verdict
+            </Typography>
+            <Typography variant="body1" align="center">
+              Probability
+            </Typography>
           </Box>
-          {data.slice(0, 5).map((item) => (
+          {state.records.map((item) => (
             <Box
               key={item.id}
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                display: "grid",
+                gridAutoFlow: "column",
+                gridAutoColumns: "1fr",
                 borderBottom: "1px solid #ccc",
-                padding: "1em",
-                backgroundColor: item.dirt > THRESHOLD ? "#f8d7da" : "#d4edda",
+                py: "1em",
+                backgroundColor: item.dirty ? "#f8d7da" : "#d4edda",
               }}
             >
-              <Typography variant="body1">{item.date}</Typography>
-              <Typography variant="body1">{item.dirt}</Typography>
+              <Typography variant="body1" align="center">
+                {moment(item.call_time).format("MMMM Do YYYY, h:mm:ss a")}
+              </Typography>
+              <Typography variant="body1" align="center">
+                {item.dirty ? "Yes" : "No"}
+              </Typography>
+              <Typography variant="body1" align="center">
+                {item.probability.toFixed(2)}
+              </Typography>
             </Box>
           ))}
           <Link
@@ -124,6 +139,7 @@ const DirtDetection = () => {
               marginLeft: "auto",
               padding: "0.5em",
               textDecoration: "none",
+              marginTop: "auto",
             }}
           >
             Show all

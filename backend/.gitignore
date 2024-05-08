@@ -2,3 +2,4 @@
 *.db
 dirt_detector.pth
 __pycache__/
+project_env/

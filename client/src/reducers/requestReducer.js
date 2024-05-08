@@ -2,6 +2,7 @@ export const initialState = {
   loading: false,
   error: null,
   response: null,
+  records: [],
 };
 
 export const reducer = (state, action) => {
@@ -20,6 +21,7 @@ export const reducer = (state, action) => {
     case "SET_RESPONSE":
       return {
         ...state,
+        records: [action.payload, ...state.records],
         loading: false,
         response: action.payload,
       };
