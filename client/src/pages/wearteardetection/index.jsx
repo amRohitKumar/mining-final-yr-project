@@ -113,6 +113,9 @@ const WearTearDetection = () => {
             <Typography variant="body1" align="center">
               Severity
             </Typography>
+            <Typography variant="body1" align="center">
+              Type
+            </Typography>
           </Box>
           {state.records.map((item) => (
             <Box
