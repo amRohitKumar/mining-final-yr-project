@@ -1,6 +1,7 @@
 import Camera from "@/components/Camera";
 import { initialState, reducer } from "@/reducers/requestReducer";
 import customFetch from "@/utils/axios";
+import delay from "@/utils/delay";
 import {
   Box,
   Button,
@@ -27,6 +28,7 @@ const WearTearDetection = () => {
       const imageUrl = handleTakeScreenshot();
       const reqData = { image: imageUrl, date: new Date() };
       // console.log("sending request = ", reqData);
+      await delay(3000);
       const { data } = await customFetch.post("/api/detect-tear", reqData);
       console.log(data);
       data.forEach((el) =>

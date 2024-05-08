@@ -15,7 +15,7 @@ export const RecordDirt = (props) => {
         gridTemplateColumns: "1fr 0.7fr 1fr",
         columnGap: "1em",
         fontSize: "1.1em",
-        backgroundColor: props.verdict === "dirty" ? "#f8d7da" : "#d4edda",
+        backgroundColor: props.call_verdict === "dirty" ? "#f8d7da" : "#d4edda",
       }}
     >
       <ViewField
@@ -42,7 +42,7 @@ export const RecordTear = (props) => {
         my: 2,
         width: "60%",
         display: "grid",
-        gridTemplateColumns: "1fr 0.7fr 1fr",
+        gridTemplateColumns: "repeat(4, 1fr)",
         columnGap: "1em",
         fontSize: "1.1em",
         backgroundColor:
@@ -62,6 +62,10 @@ export const RecordTear = (props) => {
         title="Severity"
         value={props?.severity}
         style={{ textTransform: "capitalize" }}
+      />
+      <ViewField
+        title="Wear type"
+        value={props?.wear_type}
       />
     </Paper>
   );

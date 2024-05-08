@@ -51,7 +51,7 @@ const DirtDetection = () => {
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
-        pt: "4em",
+        pt: "2em",
         px: "4em",
       }}
     >
